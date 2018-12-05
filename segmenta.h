@@ -28,6 +28,7 @@ typedef struct
 
 void binariza (Imagem* in, Imagem* out, float threshold);
 void binarizaAdapt (Imagem* in, Imagem* out, int largura, float threshold, Imagem* buffer);
+float thresholdOtsu (Imagem* img);
 
 int rotulaFloodFill (Imagem* img, ComponenteConexo** componentes, int largura_min, int altura_min, int n_pixels_min);
 void floodFill (Imagem* img, Coordenada* pilha, ComponenteConexo* componente);

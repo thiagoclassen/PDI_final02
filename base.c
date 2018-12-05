@@ -310,4 +310,34 @@ void criaHistograma8bpp1c (Imagem* in, int canal, int histograma [256])
         }
 }
 
+/*----------------------------------------------------------------------------*/
+/** Cria um histograma de 256 faixas para uma imagem de 1 canal. Para isso, os
+ * valores no intervalo [0,1] são interpretados como inteiros de 8 bits no
+ * intervalo [0,255]. O histograma é normalizado, de forma que a soma de todas
+ * as faixas seja 1 (normalização L1).
+ *
+ * Parâmetros: Imagem* in: imagem de entrada.
+ *             int canal: canal da imagem de entrada a se analisar.
+ *             float histograma [256]: histograma de saída.
+ *
+ * Valor de retorno: nenhum (o histograma é preenchido). */
+
+void criaHistograma8bpp1cNorm (Imagem* in, int canal, float histograma [256])
+{
+    int hist_int [256];
+    criaHistograma8bpp1c (in, canal, hist_int);
+
+    int i;
+
+    // Calcula a soma de todas as faixas.
+    int soma = 0;
+    for (i = 0; i < 256; i++)
+        soma += hist_int [i];
+
+    // Agora divide todos pela soma.
+    float norm = 1.0f / (float) soma;
+    for (i = 0; i < 256; i++)
+        histograma [i] = ((float) hist_int [i]) * norm;
+}
+
 /*============================================================================*/

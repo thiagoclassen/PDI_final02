@@ -35,6 +35,8 @@ Imagem* abreImagem (char* arquivo, int n_canais);
 int salvaImagem (Imagem* img, char* arquivo);
 Imagem* clonaImagem (Imagem* img);
 void copiaConteudo (Imagem* in, Imagem* out);
+void redimensionaNN (Imagem* in, Imagem* out);
+void redimensionaBilinear (Imagem* in, Imagem* out);
 
 /*============================================================================*/
 #endif /* __IMAGEM_H */

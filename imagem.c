@@ -16,6 +16,7 @@
 #include <math.h>
 
 #include "imagem.h"
+#include "base.h"
 
 /*============================================================================*/
 
@@ -29,7 +30,6 @@ int leDados (FILE* stream, Imagem* img);
 
 void putLittleEndianULong (unsigned long val, unsigned char* buffer);
 void putLittleEndianUShort (unsigned short val, unsigned char* buffer);
-unsigned char float2uchar (float x);
 int salvaHeaderBitmap (FILE* stream, Imagem* img);
 int salvaHeaderDIB (FILE* stream, Imagem* img);
 int salvaDados (FILE* stream, Imagem* img);
@@ -156,7 +156,7 @@ Imagem* abreImagem (char* arquivo, int n_canais)
 
 	fclose (stream);
 
-    /* Se o chamador espera uma imagem de 1 canal, converte para escala de cinza. */
+	/* Se o chamador espera uma imagem de 1 canal, converte para escala de cinza. */
     if (n_canais == 1)
     {
         int i, j;
@@ -272,6 +272,104 @@ void copiaConteudo (Imagem* in, Imagem* out)
         for (j = 0; j < in->altura; j++)
             for (k = 0; k < in->largura; k++)
                 out->dados [i][j][k] = in->dados [i][j][k];
+}
+
+/*----------------------------------------------------------------------------*/
+/** Redimensionamento por vizinho mais próximo. Simples e barato. Eu nem estou
+ * pegando o vizinho mais próximo de verdade, estou truncando para baixo - o
+ * resultado é quase o mesmo.
+ *
+ * Parâmetros: Imagem* in: imagem de entrada.
+ *             Imagem* out: imagem de saída. Deve ter o mesmo número de canais
+ *               da imagem de entrada.
+ *
+ * Valor de retorno: nenhum. */
+
+void redimensionaNN (Imagem* in, Imagem* out)
+{
+    if (in->n_canais != out->n_canais)
+    {
+        printf ("ERRO: redimensionaNN: as imagens precisam ter o mesmo numero de canais.\n");
+        exit (1);
+    }
+
+    float vscale = in->altura / (float) out->altura;
+    float hscale = in->largura / (float) out->largura;
+
+    int row, col, channel;
+    for (row = 0; row < out->altura; row++)
+    {
+        int y = (int)(row*vscale);
+        for (col = 0; col < out->largura; col++)
+        {
+            int x = (int)(col*hscale);
+            for (channel = 0; channel < out->n_canais; channel++)
+                out->dados [channel][row][col] = in->dados [channel][y][x];
+        }
+    }
+}
+
+/*----------------------------------------------------------------------------*/
+/** Redimensionamento com interpolação bilinear.
+ *
+ * Parâmetros: Imagem* in: imagem de entrada.
+ *             Imagem* out: imagem de saída. Deve ter o mesmo número de canais
+ *               da imagem de entrada.
+ *
+ * Valor de retorno: nenhum. */
+
+void redimensionaBilinear (Imagem* in, Imagem* out)
+{
+    if (in->n_canais != out->n_canais)
+    {
+        printf ("ERRO: redimensionaBilinear: as imagens precisam ter o mesmo numero de canais.\n");
+        exit (1);
+    }
+
+    float vscale = in->altura / (float) out->altura;
+    float hscale = in->largura / (float) out->largura;
+
+    int row, col, channel;
+    float y, floor_y, peso_t, peso_b;
+    float x, floor_x, peso_l, peso_r;
+    float peso_tl, peso_tr, peso_bl, peso_br;
+    int l, r, t, b;
+
+    for (row = 0; row < out->altura; row++)
+    {
+        // Calcula os parâmetros verticais.
+        y = row*vscale-0.5f;
+        floor_y = floorf (y);
+        t = ((int) floor_y);
+        if (t < 0) t = in->altura-1;
+        if (t >= in->altura) t = 0;
+        b = (t+1)%in->altura;
+
+        peso_b = y - floor_y;
+        peso_t = 1 - peso_b;
+
+        for (col = 0; col < out->largura; col++)
+        {
+            // Calcula os parâmetros horizontais.
+            x = col*hscale-0.5f;
+            floor_x = floorf (x);
+            l = ((int) floor_x);
+            if (l < 0) l = in->largura-1;
+            if (l >= in->largura) l = 0;
+            r = (l+1)%in->largura;
+
+            peso_r = x - floor_x;
+            peso_l = 1 - peso_r;
+
+            peso_tl = peso_t * peso_l;
+            peso_tr = peso_t * peso_r;
+            peso_bl = peso_b * peso_l;
+            peso_br = peso_b * peso_r;
+
+            for (channel = 0; channel < out->n_canais; channel++)
+                out->dados [channel][row][col] = in->dados [channel][t][l] * peso_tl + in->dados [channel][b][l] * peso_bl + in->dados [channel][t][r] * peso_tr + in->dados [channel][b][r] * peso_br;
+        }
+    }
 }
 
 /*============================================================================*/

@@ -64,17 +64,19 @@ void insertNodeAtTheEnd(Header *head, Dot value) {
 
 void printList(Header *head) {
 
-	if (head->nodeCount > 0) {
-		int i = 0;
+	Node *aux;
+	int i = 1;
 
-		for (i = 0; i < head->nodeCount; i++) {
-			printf("\nPOS: %d", i);
-			//printf(" X: %f ", head[i]->dot.x);
-			//printf(" Y: %f\n", head[i]->dot.y);
-		}
+	printf("\n");
+	if (head->nodeCount > 0) {
+		for (aux = head->head, i = 1; aux != head->tail; i++, aux = aux->next) {
+			printf("\n NodeCount: %d POS: %d [%d][%d] Dist: %f", head->nodeCount, i, aux->dot.y, aux->dot.x, aux->dot.dist);        
+	}	
 	} else {
 		printf("\nLista vazia.\n");
 	}
+
+	printf("\n");
 
 }
 
@@ -158,6 +160,26 @@ void deleteLastNode(Header *head) {
 		wipeList(head);
 	}
 
+}
+
+
+int checkNodeByValue(Header *head, int y, int x) {
+
+	int flag = 0, i;		
+	Node *aux;
+	aux = head->head;
+
+	for (i = 0; i < head->nodeCount && flag == 0; i++) {
+		/*
+		 * Checks if the node is the one we're searching for.
+		 */
+		if (aux->dot.x == x && aux->dot.y == y) {
+			flag = 1;			
+		}
+		aux = aux->next;
+	}
+
+	return flag;
 }
 
 void startRef(int size) {

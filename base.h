@@ -1,10 +1,10 @@
 /*============================================================================*/
-/* TIPOS E FUNÇÕES BÁSICOS                                                    */
+/* TIPOS E FUNï¿½ï¿½ES Bï¿½SICOS                                                    */
 /*----------------------------------------------------------------------------*/
 /* Autor: Bogdan T. Nassu - nassu@dainf.ct.utfpr.edu.br                       */
 /*============================================================================*/
-/** Tipos e funções básicos, úteis para diversos problemas envolvendo
- * manipulação de imagens. */
+/** Tipos e funï¿½ï¿½es bï¿½sicos, ï¿½teis para diversos problemas envolvendo
+ * manipulaï¿½ï¿½o de imagens. */
 /*============================================================================*/
 
 #ifndef __BASE_H
@@ -14,20 +14,21 @@
 
 #include "imagem.h"
 
-/* O básico do básico... */
+/* O bï¿½sico do bï¿½sico... */
 #define MIN(a,b) ((a<b)?a:b)
 #define MAX(a,b) ((a>b)?a:b)
 unsigned char float2uchar (float x);
 
 void soma (Imagem* in1, Imagem* in2, float mul1, float mul2, Imagem* out);
 
-/* Normalização */
+/* Normalizaï¿½ï¿½o */
 void normaliza (Imagem* in, Imagem* out, float min, float max);
 void normalizaSemExtremos8bpp (Imagem* in, Imagem* out, float min, float max, float descartados);
 void normLocalSimples (Imagem* in, Imagem* out, float min, float max, int largura);
 
 /* Histogramas */
 void criaHistograma8bpp1c (Imagem* in, int canal, int histograma [256]);
+void criaHistograma8bpp1cNorm (Imagem* in, int canal, float histograma [256]);
 
 /*============================================================================*/
 #endif /* __BASE_H */

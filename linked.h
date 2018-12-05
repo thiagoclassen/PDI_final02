@@ -2,8 +2,9 @@
 #define __LINKED_H
 
 struct dot {
-	float y;
-	float x;
+	int y;
+	int x;
+	double dist;
 }typedef Dot;
 
 struct node {
@@ -26,6 +27,7 @@ void deleteLastNode(Header *head);
 void deleteFirstNode(Header *head);
 void deleteDotAtN(Header *head, int k);
 Dot getDotAtN(Header *head, int k);
+int checkNodeByValue(Header *head, int y, int x);
 
 void startRef(int size);
 //void reallocRef(int size);
