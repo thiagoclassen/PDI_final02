@@ -70,8 +70,9 @@ void printList(Header *head) {
 	printf("\n");
 	if (head->nodeCount > 0) {
 		for (aux = head->head, i = 1; aux != head->tail; i++, aux = aux->next) {
-			printf("\n NodeCount: %d POS: %d [%d][%d] Dist: %f", head->nodeCount, i, aux->dot.y, aux->dot.x, aux->dot.dist);        
-	}	
+			printf("\n NodeCount: %d POS: %d [%d][%d] Dist: %f", head->nodeCount, i, aux->dot.y, aux->dot.x, aux->dot.dist);
+		}	
+		printf("\n NodeCount: %d POS: %d [%d][%d] Dist: %f", head->nodeCount, i, head->tail->dot.y, head->tail->dot.x, head->tail->dot.dist);        
 	} else {
 		printf("\nLista vazia.\n");
 	}

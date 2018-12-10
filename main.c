@@ -4,7 +4,7 @@
 #include <math.h>
 #include "pdi.h"
 
-#define ORIGINAL "./images/letra_s.bmp"
+#define ORIGINAL "./images/qg.bmp"
 #define JANELA 3
 
 
@@ -50,7 +50,6 @@ int main() {
 
     soma(imagem, erosao, 1.0f, -1.0f, bordas);
 
-
     // popula lista encadeada
     for(int y = 0, flag = 0; y < bordas->altura && flag != 1; y++){
         for(int x = 0; x < bordas->largura && flag != 1; x++){
@@ -62,18 +61,22 @@ int main() {
     }
 
 
-    for(int idx = 0; idx< 500; idx++){
+    /*for(int idx = 0; idx< 1100; idx++){
         calculaDistancias(&head);
         removeLowValues(&head);
-    }
+    }*/
 
-    //calculaDistancias(&head);
+    calculaDistancias(&head);
+
     //printList(&head);
+    
     double removed = 0.0f;
     /*do{
         calculaDistancias(&head);
         removed = removeLowValues(&head);
-    }while(removed <= 0.25f);*/
+    }while(removed == 0.0f && removed != 999999.0f);*/
+
+    printList(&head);
 
     Imagem *teste = criaImagem(imagem->largura, imagem->altura, imagem->n_canais);
 
@@ -153,20 +156,20 @@ void calculaDistancias(Header *head){
     int c;
     aux = head->head;
 
-    for (c = 1; aux->next != head->tail; aux = aux->next, c++) {
+    for (c = 1; aux->next != head->tail; aux = aux->next->next->next, c++) {
     
         //aux->dot.dist = shortestDistance(aux->dot, aux->next->next->dot, aux->next->dot);        
         aux->dot.dist = shortestDistanceTo(aux->dot, aux->next->next->dot, aux->next->dot);        
 
-        printf("\n Distancia de C ate AB: A[%d][%d] B[%d][%d] C[%d][%d]\n", aux->dot.y, aux->dot.x, aux->next->next->dot.y, aux->next->next->dot.x, aux->next->dot.y, aux->next->dot.x);  
+        // printf("\n Distancia de C ate AB: A[%d][%d] B[%d][%d] C[%d][%d]", aux->dot.y, aux->dot.x, aux->next->next->dot.y, aux->next->next->dot.x, aux->next->dot.y, aux->next->dot.x);  
 
         if(aux->dot.dist > 0.0f){
-          //printf("\n NodeCount: %d current: %d dist: %f \n", head->nodeCount, c, aux->dot.dist);  
+            //printf("\n NodeCount: %d current: %d dist: %f \n", head->nodeCount, c, aux->dot.dist);  
         }
-		//printf("\n NodeCount: %d current: %d dist: %f \n", head->nodeCount, c, aux->dot.dist);        
+		  //  printf("\n NodeCount: %d current: %d dist: %f \n", head->nodeCount, c, aux->dot.dist);        
 	}
+    head->tail->prev->dot.dist = shortestDistanceTo(head->tail->prev->dot, head->head->dot, head->tail->dot);
     head->tail->dot.dist = shortestDistanceTo(head->tail->dot, head->head->next->dot, head->head->dot);        
-
 }
 
 double removeLowValues(Header *head){
@@ -176,14 +179,16 @@ double removeLowValues(Header *head){
     int lowestIdx = 0;
 
     for (int i = 0; i < head->nodeCount; i++, aux = aux->next) {
-        if(aux->dot.dist < lowestDist) {
+        if(aux->dot.dist < lowestDist && aux->dot.dist < 1.0f) {
             lowestDist = aux->dot.dist;
             lowestIdx = i; 
         }            
 	}
 
-    //printf("\n Deleting %d with the value %f \n", lowestIdx, lowestDist);
-    deleteDotAtN(head, lowestIdx);
+    if(lowestDist != 999999.0f){
+        printf("\n Deleting %d with the value %f \n", lowestIdx, lowestDist);
+        deleteDotAtN(head, lowestIdx);
+    }
 
     return lowestDist;
 }
