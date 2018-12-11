@@ -4,7 +4,7 @@
 #include <math.h>
 #include "pdi.h"
 
-#define ORIGINAL "./images/qg.bmp"
+#define ORIGINAL "./images/letra_s.bmp"
 #define JANELA 3
 
 
@@ -71,10 +71,10 @@ int main() {
     //printList(&head);
     
     double removed = 0.0f;
-    /*do{
+    do{
         calculaDistancias(&head);
         removed = removeLowValues(&head);
-    }while(removed == 0.0f && removed != 999999.0f);*/
+    }while(removed == 0.0f);
 
     printList(&head);
 
@@ -156,10 +156,10 @@ void calculaDistancias(Header *head){
     int c;
     aux = head->head;
 
-    for (c = 1; aux->next != head->tail; aux = aux->next->next->next, c++) {
+    for (c = 1; aux->next != head->tail; aux = aux->next, c++) {
     
         //aux->dot.dist = shortestDistance(aux->dot, aux->next->next->dot, aux->next->dot);        
-        aux->dot.dist = shortestDistanceTo(aux->dot, aux->next->next->dot, aux->next->dot);        
+        aux->next->dot.dist = shortestDistanceTo(aux->dot, aux->next->next->dot, aux->next->dot);        
 
         // printf("\n Distancia de C ate AB: A[%d][%d] B[%d][%d] C[%d][%d]", aux->dot.y, aux->dot.x, aux->next->next->dot.y, aux->next->next->dot.x, aux->next->dot.y, aux->next->dot.x);  
 
@@ -173,7 +173,7 @@ void calculaDistancias(Header *head){
 }
 
 double removeLowValues(Header *head){
-    Node *aux;
+    Node *aux, temp;
     aux = head->head;
     double lowestDist = 999999.0f;
     int lowestIdx = 0;
@@ -187,43 +187,10 @@ double removeLowValues(Header *head){
 
     if(lowestDist != 999999.0f){
         printf("\n Deleting %d with the value %f \n", lowestIdx, lowestDist);
+        
+        //temp = getNodeAtN(head, lowestIdx);
         deleteDotAtN(head, lowestIdx);
     }
 
     return lowestDist;
 }
-
-
-void lineFromPoints(Dot Q, Dot P) 
-{ 
-    float a = Q.y - P.y; 
-    float b = P.x - Q.x; 
-    float c = a*(P.x) + b*(P.y); 
-  
-
-} 
-
-double shortestDistance(Dot a,Dot b,Dot c)
-    {
-        //printf("\n A -> [%d][%d], B -> [%d][%d], C -> [%d][%d]", a.y, a.x, b.y,b.x,c.y,c.x);
-
-
-        float px=b.x-a.x;
-        float py=b.y-a.y;
-        float temp=(px*px)+(py*py);
-        float u=((c.x - a.x) * px + (c.y - a.y) * py) / (temp);
-        if(u>1){
-            u=1;
-        }
-        else if(u<0){
-            u=0;
-        }
-        float x = a.x + u * px;
-        float y = a.y + u * py;
-
-        float dx = x - c.x;
-        float dy = y - c.y;
-        double dist = sqrt(dx*dx + dy*dy);
-        return dist;
-
-    }

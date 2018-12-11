@@ -28,6 +28,7 @@ void deleteFirstNode(Header *head);
 void deleteDotAtN(Header *head, int k);
 Dot getDotAtN(Header *head, int k);
 int checkNodeByValue(Header *head, int y, int x);
+Node* getNodeAtN(Header *head, int k);
 
 void startRef(int size);
 //void reallocRef(int size);

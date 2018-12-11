@@ -144,6 +144,23 @@ Dot getDotAtN(Header *head, int k) {
 	}
 }
 
+Node* getNodeAtN(Header *head, int k) {
+
+	if (head->nodeCount == 0) {
+		printf("\nLista vazia.\n");
+	} else {
+		int i;
+		Node *aux;
+		aux = head->head;
+
+		for (i = 0; i < k; i++) {
+			aux = aux->next;
+		}
+
+		return aux;
+	}
+}
+
 void deleteLastNode(Header *head) {
 
 	if (head->nodeCount > 1) {
