@@ -4,9 +4,8 @@
 #include <math.h>
 #include "pdi.h"
 
-#define ORIGINAL "./images/letra_s.bmp"
-#define JANELA 3
-
+#define ORIGINAL "./images/qg.bmp"
+#define SCALE 0.25f
 
 double shortestDistance(Dot a,Dot b,Dot c);
 void getPoints(Imagem *img, int y, int x, Header *head);
@@ -16,7 +15,7 @@ float shortestDistanceTo(Dot pt1, Dot pt2, Dot ponto);
 
 int main() {
 
-    Imagem *imagem, *erosao, *kernel, *bordas;
+    Imagem *imagem, *erosao, *kernel, *bordas, *final;
     Coordenada centroKernel;
     centroKernel.x = 1;
     centroKernel.y = 1;
@@ -43,6 +42,7 @@ int main() {
 
     erosao = criaImagem(imagem->largura, imagem->altura, imagem->n_canais);
     bordas = criaImagem(imagem->largura, imagem->altura, imagem->n_canais);
+    final = criaImagem(imagem->largura, imagem->altura, imagem->n_canais);
 
     kernel = criaKernelCircular(3);
     
@@ -85,6 +85,92 @@ int main() {
         teste->dados[0][(int)ponto.y][(int)ponto.x] = 1.0f;
     }
 
+    printf("\nGetting object limits... \n");
+
+    int hx = 0, lx=0, hy=0, ly=0;
+    Node *node;
+
+    for(int idx = 0;idx < head.nodeCount; idx++){
+        node = getNodeAtN(&head, idx);
+        
+        if(node->dot.x > hx)
+            hx = node->dot.x;        
+        else if(node->dot.x < lx)
+            lx = node->dot.x;
+        if(node->dot.y > hy)
+            hy = node->dot.y;
+        else if(node->dot.y < ly)
+            ly = node->dot.y;
+    }  
+
+    Imagem *no_res = criaImagem(imagem->largura, imagem->altura, imagem->n_canais);
+
+    Coordenada p1, p2;
+    Cor cor = criaCor(1.0f, 1.0f, 1.0f);
+
+    for(int idx = 0;idx < head.nodeCount-1; idx++){
+        node = getNodeAtN(&head, idx);
+        p1.x = node->dot.x;
+        p1.y = node->dot.y;
+        p2.x = node->next->dot.x;
+        p2.y = node->next->dot.y;
+        line(p1.x, p1.y, p2.x,p2.y,no_res);
+    }
+
+    p1.x = head.tail->dot.x;
+    p1.y = head.tail->dot.y;
+    p2.x = head.head->dot.x;
+    p2.y = head.head->dot.y;
+
+    line(p1.x, p1.y, p2.x,p2.y,no_res); 
+
+
+    printf("\nResizing Object... \n");
+
+    int x_axis = hx - lx, y_axis = hy - ly;
+
+    printf("\nx_axis %d y_axis %d\n", x_axis, y_axis);
+
+    for(int idx = 0;idx < head.nodeCount; idx++){
+        node = getNodeAtN(&head, idx);
+        if(node->dot.x > x_axis/2)
+            node->dot.x = node->dot.x * (SCALE + 1.0f);
+        else
+            node->dot.x = node->dot.x * (1.0f - SCALE);
+
+        if(node->dot.y > y_axis/2)
+            node->dot.y = node->dot.y * (SCALE + 1.0f);
+        else
+            node->dot.y = node->dot.y * (1.0f - SCALE);
+        
+    }
+
+
+    printf("\nReconstruindo Imagem... \n");
+
+    
+    for(int idx = 0;idx < head.nodeCount-1; idx++){
+        node = getNodeAtN(&head, idx);
+        p1.x = node->dot.x;
+        p1.y = node->dot.y;
+        p2.x = node->next->dot.x;
+        p2.y = node->next->dot.y;
+        line(p1.x, p1.y, p2.x,p2.y,final);
+    }
+
+    p1.x = head.tail->dot.x;
+    p1.y = head.tail->dot.y;
+    p2.x = head.head->dot.x;
+    p2.y = head.head->dot.y;
+
+    line(p1.x, p1.y, p2.x,p2.y,final);
+
+    salvaImagem(final, "final.bmp");
+    destroiImagem(final);
+
+    salvaImagem(no_res, "no_res.bmp");
+    destroiImagem(no_res);
+
     salvaImagem(teste, "teste.bmp");
     destroiImagem(teste);
 
@@ -98,6 +184,21 @@ int main() {
     wipeList(&head);
 
     return 0;
+}
+
+void line(int x0, int y0, int x1, int y1, Imagem *img) {
+ 
+  int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
+  int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1; 
+  int err = (dx>dy ? dx : -dy)/2, e2;
+ 
+  for(;;){
+    img->dados[0][y0][x0] = 1.0f;
+    if (x0==x1 && y0==y1) break;
+    e2 = err;
+    if (e2 >-dx) { err -= dy; x0 += sx; }
+    if (e2 < dy) { err += dx; y0 += sy; }
+  }
 }
 
 float shortestDistanceTo(Dot pt1, Dot pt2, Dot ponto)
